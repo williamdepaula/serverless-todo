@@ -1,7 +1,7 @@
 export default {
   type: "object",
   properties: {
-    text: { type: "string" },
+    title: { type: "string" },
     checked: { type: "boolean" },
   },
 } as const;

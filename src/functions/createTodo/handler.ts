@@ -10,12 +10,12 @@ var AWS = require("aws-sdk");
 const createTodo: ValidatedEventAPIGatewayProxyEvent<typeof schema> = async (
   event
 ) => {
-  const { text } = event.body;
+  const { title } = event.body;
 
-  if (!text) {
+  if (!title) {
     return formatJSONResponse(
       {
-        text: "Cannot be empty",
+        title: "Cannot be empty",
       },
       403
     );
@@ -35,8 +35,8 @@ const createTodo: ValidatedEventAPIGatewayProxyEvent<typeof schema> = async (
       id: {
         S: id,
       },
-      text: {
-        S: text,
+      title: {
+        S: title,
       },
       createdAt: {
         S: createdAt,
@@ -61,7 +61,7 @@ const createTodo: ValidatedEventAPIGatewayProxyEvent<typeof schema> = async (
   }
 
   return formatJSONResponse({
-    text: `${text}`,
+    title,
     id,
     createdAt,
     updatedAt,

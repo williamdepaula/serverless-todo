@@ -9,7 +9,7 @@ var AWS = require("aws-sdk");
 const updateTodo: ValidatedEventAPIGatewayProxyEvent<typeof schema> = async (
   event
 ) => {
-  let { text, checked } = event.body;
+  let { title, checked } = event.body;
   const { id } = event.pathParameters;
   const updatedAt = `${new Date()}`;
 
@@ -22,57 +22,30 @@ const updateTodo: ValidatedEventAPIGatewayProxyEvent<typeof schema> = async (
   var params = {
     Key: {
       id: {
-        S: `${id}`,
+        S: id,
       },
     },
-    TableName,
-  };
-
-  let data;
-  try {
-    data = await ddb.getItem(params).promise();
-    console.log("Item updated successfully:", data);
-    console.log("Params", params);
-  } catch (err) {
-    console.log("Error: ", err);
-  }
-
-  data = AWS.DynamoDB.Converter.unmarshall(data["Item"]);
-  console.log("Data:", data);
-  var params2 = {
-    TableName,
-    Key: {
-      id: id,
-    },
-    UpdateExpression: `set text = :updateValue`,
+    UpdateExpression:
+      "set title = :title, checked = :checked, updatedAt = :updatedAt  ",
     ExpressionAttributeValues: {
-      ":updateValue": text,
+      ":title": { S: title },
+      ":checked": { BOOL: checked },
+      ":updatedAt": { S: updatedAt },
     },
+    ReturnValues: "UPDATED_NEW",
+    TableName,
   };
-
-  // {
-  //   text: {
-  //     Value: text,
-  //   },
-  //   updatedAt: {
-  //     Value: updatedAt,
-  //   },
-  //   checked: {
-  //     Value: checked,
-  //   },
-  // },
-  // TableName,
 
   let todo;
   try {
-    console.log("Params2", params2);
-    todo = await ddb.updateItem(params2).promise();
+    console.log("Params", params);
+    todo = await ddb.updateItem(params).promise();
     console.log("Item entered successfully:", todo);
   } catch (err) {
     console.log("Error: ", err);
   }
 
-  todo = AWS.DynamoDB.Converter.unmarshall(data["Item"]);
+  todo = AWS.DynamoDB.Converter.unmarshall(todo["Item"]);
   console.log("Todo:", todo);
 
   return formatJSONResponse(todo);
